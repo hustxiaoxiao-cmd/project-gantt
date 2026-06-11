@@ -1,0 +1,444 @@
+{
+  "name": "🇮🇱 以色列",
+  "color": "#6a1b9a",
+  "deadline": "2026-07-30",
+  "deadlineLabel": "730",
+  "tasks": [
+    {
+      "phase": "1、Pre运营准备",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "phase"
+    },
+    {
+      "task": "采购需求",
+      "p": "P1",
+      "owner": "李雨桐",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "服务商定标",
+      "p": "P1",
+      "owner": "",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "商务签署（合同、主体选择等）",
+      "p": "P0",
+      "owner": "",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "CP侧MRD",
+      "p": "P0",
+      "owner": "",
+      "start": "",
+      "end": "",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "CP能力确认（Follow表格清单）",
+      "p": "",
+      "owner": "",
+      "start": "2026-06-08",
+      "end": "2026-06-15",
+      "status": "done",
+      "risk": "",
+      "remark": "服务商能力上线申请模版"
+    },
+    {
+      "phase": "2、方案评审",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "phase"
+    },
+    {
+      "task": "物流部MRD评审",
+      "p": "P0",
+      "owner": "楼依晗",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "交易MRD评审",
+      "p": "P0",
+      "owner": "程晨(刮乐)",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "履约MRD评审",
+      "p": "P0",
+      "owner": "姜渔",
+      "start": "2026-06-01",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "物流部PRD评审",
+      "p": "P1",
+      "owner": "季晶(筱xiǎo潼)",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "交易PRD评审",
+      "p": "P1",
+      "owner": "汪逊(西筠)",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "履约PRD评审",
+      "p": "P1",
+      "owner": "李宇鹏(影月)",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "物流部技术方案评审",
+      "p": "P2",
+      "owner": "蔡广正(待宵)",
+      "start": "2026-06-08",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "交易技术方案评审",
+      "p": "P2",
+      "owner": "程晨(刮乐)",
+      "start": "2026-06-08",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "履约技术方案评审",
+      "p": "P2",
+      "owner": "墨铨",
+      "start": "2026-06-08",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "phase": "3、商务、定价、结算",
+      "start": "2026-06-05",
+      "end": "2026-07-20",
+      "status": "phase"
+    },
+    {
+      "task": "成本价卡",
+      "p": "P0",
+      "owner": "李雨桐",
+      "start": "2026-06-29",
+      "end": "2026-07-13",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "价卡沟通和确认",
+      "p": "P1",
+      "owner": "余清华(七恬)/李雨桐(杉麦)/苏理(紫郎)",
+      "start": "2026-07-03",
+      "end": "2026-07-13",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "收入定价",
+      "p": "P0",
+      "owner": "苏理(紫郎)",
+      "start": "2026-06-29",
+      "end": "2026-07-13",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "成本审批发起",
+      "p": "P1",
+      "owner": "李雨桐(杉麦)",
+      "start": "2026-06-05",
+      "end": "2026-06-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "成本归档",
+      "p": "P1",
+      "owner": "李雨桐(杉麦)",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "收入审批发起",
+      "p": "P1",
+      "owner": "苏理(紫郎)",
+      "start": "2026-07-05",
+      "end": "2026-07-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "收入归档",
+      "p": "P1",
+      "owner": "苏理(紫郎)",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "结算配置",
+      "p": "P1",
+      "owner": "余清华(七恬)",
+      "start": "",
+      "end": "",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "收入验证",
+      "p": "P1",
+      "owner": "燕航(谚予)",
+      "start": "",
+      "end": "",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "成本验证",
+      "p": "P1",
+      "owner": "余清华(七恬)",
+      "start": "",
+      "end": "",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "phase": "4、服务",
+      "start": "",
+      "end": "",
+      "status": "phase"
+    },
+    {
+      "phase": "5、系统配置",
+      "start": "2026-06-29",
+      "end": "2026-07-29",
+      "status": "phase"
+    },
+    {
+      "task": "资源创建",
+      "p": "P1",
+      "owner": "李雨桐",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "供应链组网配置",
+      "p": "P1",
+      "owner": "楼依晗",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "物流部组网配置",
+      "p": "P1",
+      "owner": "李雨桐",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "仓实操配置（账号开通，权限，系统配置，开仓配置等）",
+      "p": "P2",
+      "owner": "李雨桐",
+      "start": "2026-06-29",
+      "end": "2026-07-06",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "仓实操培训（操作系统，SOP流程）",
+      "p": "P2",
+      "owner": "李雨桐",
+      "start": "2026-06-29",
+      "end": "2026-07-06",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "供应链解决方案",
+      "p": "P1",
+      "owner": "楼依晗",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "物流部解决方案",
+      "p": "P1",
+      "owner": "楼依晗",
+      "start": "2026-07-10",
+      "end": "2026-07-20",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "商家侧公告发布（提前半个月）",
+      "p": "P2",
+      "owner": "楼依晗",
+      "start": "2026-07-08",
+      "end": "2026-07-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "技术仓地址配置（提前至少一周）",
+      "p": "P2",
+      "owner": "楼依晗",
+      "start": "2026-07-08",
+      "end": "2026-07-15",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "交易配送透传能力配置",
+      "p": "P2",
+      "owner": "程晨(刮乐)",
+      "start": "2026-07-15",
+      "end": "2026-07-22",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "分单配置",
+      "p": "P2",
+      "owner": "李雨桐",
+      "start": "2026-07-22",
+      "end": "2026-07-29",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "phase": "6、项目上线",
+      "start": "2026-07-15",
+      "end": "2026-07-30",
+      "status": "phase"
+    },
+    {
+      "task": "联调",
+      "p": "P2",
+      "owner": "",
+      "start": "2026-07-15",
+      "end": "2026-07-22",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "全链路测试",
+      "p": "P2",
+      "owner": "",
+      "start": "2026-07-17",
+      "end": "2026-07-24",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "UAT",
+      "p": "P2",
+      "owner": "蔡广正(待宵)",
+      "start": "2026-07-21",
+      "end": "2026-07-28",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "产技发布（交易、履约、解决方案、履行、组网、结算、CP）",
+      "p": "P2",
+      "owner": "",
+      "start": "2026-07-23",
+      "end": "2026-07-30",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    },
+    {
+      "task": "前台开量节奏（灰度计划）",
+      "p": "P2",
+      "owner": "",
+      "start": "",
+      "end": "",
+      "status": "todo",
+      "risk": "",
+      "remark": ""
+    }
+  ]
+}

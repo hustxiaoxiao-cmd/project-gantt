@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甘特图加载中...</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;transition:background .3s,color .3s}
+body.dark{background:#1a1a2e;color:#e0e0e0}
+.header{text-align:center;background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:20px;margin:16px;border-radius:12px;box-shadow:0 4px 12px rgba(26,115,232,.3)}
+.header h2{font-size:22px;margin-bottom:4px}
+.header p{font-size:13px;opacity:.85}
+.countdown-bar{display:flex;justify-content:center;gap:24px;margin-top:10px;flex-wrap:wrap}
+.countdown-item{background:rgba(255,255,255,.15);padding:6px 16px;border-radius:16px;font-size:12px;font-weight:600}
+.countdown-item .days{font-size:18px;font-weight:800;margin:0 4px}
+.countdown-item.urgent-cd .days{color:#ffab00}
+.progress-rings{display:flex;justify-content:center;gap:16px;margin:12px 16px;flex-wrap:wrap}
+.ring-card{background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 2px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px;min-width:180px}
+body.dark .ring-card{background:#16213e}
+.ring-svg{width:52px;height:52px}
+.ring-label{font-size:12px;font-weight:700}
+.ring-stats{font-size:10px;color:#888;margin-top:2px}
+body.dark .ring-stats{color:#aaa}
+.toolbar{display:flex;justify-content:center;gap:8px;margin:10px 16px;flex-wrap:wrap;align-items:center}
+.tab-btn{padding:7px 16px;border:2px solid #1a73e8;background:#fff;color:#1a73e8;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.tab-btn:hover,.tab-btn.active{background:#1a73e8;color:#fff}
+body.dark .tab-btn{background:#16213e;border-color:#3b82f6;color:#93c5fd}
+body.dark .tab-btn.active{background:#3b82f6;color:#fff}
+.filter-select{padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;background:#fff;cursor:pointer;outline:none}
+body.dark .filter-select{background:#16213e;border-color:#444;color:#e0e0e0}
+.search-box{padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:140px;outline:none}
+.search-box:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.2)}
+body.dark .search-box{background:#16213e;border-color:#444;color:#e0e0e0}
+.icon-btn{padding:6px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;transition:all .2s}
+.icon-btn:hover{background:#f0f4ff;border-color:#1a73e8}
+.icon-btn.active{background:#1a73e8;color:#fff;border-color:#1a73e8}
+body.dark .icon-btn{background:#16213e;border-color:#444;color:#e0e0e0}
+.sep{width:1px;height:20px;background:#ddd;margin:0 2px}
+body.dark .sep{background:#444}
+.legend{display:flex;justify-content:center;gap:14px;margin:6px 16px 8px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
+body.dark .legend-item{color:#aaa}
+.legend-color{width:12px;height:12px;border-radius:3px}
+.todo-toggle{display:flex;justify-content:center;margin:0 16px 8px}
+.todo-toggle-btn{padding:9px 24px;border:none;background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff;border-radius:24px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 3px 10px rgba(255,111,0,.3);transition:all .2s;line-height:1.2}
+.todo-toggle-btn:hover{transform:translateY(-1px)}
+.todo-toggle-btn .badge{display:inline-block;background:#fff;color:#ff6f00;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:5px}
+.todo-panel{margin:0 16px 12px;display:none}
+.todo-panel.show{display:block}
+.todo-section{background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.06);margin-bottom:10px;overflow:hidden}
+body.dark .todo-section{background:#16213e}
+.todo-section-header{padding:10px 16px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.todo-section-header .count{background:rgba(255,255,255,.3);padding:1px 7px;border-radius:10px;font-size:10px}
+.todo-list{padding:4px 10px 10px}
+.todo-item{display:flex;align-items:center;padding:7px 10px;margin:3px 0;border-radius:6px;background:#fafbfc;border-left:4px solid #ccc;font-size:11px;gap:8px;transition:background .15s;flex-wrap:wrap}
+body.dark .todo-item{background:#1a1a3e}
+.todo-item:hover{background:#f0f4ff}
+.todo-item.urgent{border-left-color:#f44336;background:#fff5f5}
+.todo-item.warn{border-left-color:#ff9800}
+.todo-item.normal{border-left-color:#1e88e5}
+.todo-main-row{display:flex;align-items:center;gap:8px;width:100%}
+.todo-remark-btn{padding:2px 8px;border:1px solid #f44336;background:#fff5f5;color:#f44336;border-radius:10px;cursor:pointer;font-size:9px;font-weight:600;transition:all .15s;white-space:nowrap}
+.todo-remark-btn:hover{background:#f44336;color:#fff}
+body.dark .todo-remark-btn{background:#2a1a1e;border-color:#ef9a9a}
+.todo-remark-detail{width:100%;padding:6px 12px;margin-top:4px;background:#fff8e1;border-radius:4px;font-size:11px;line-height:1.6;color:#5d4037;display:none;border:1px solid #ffe0b2;word-break:break-all}
+body.dark .todo-remark-detail{background:#2a2200;border-color:#5d4037;color:#ffcc80}
+.todo-remark-detail.show{display:block}
+.todo-risk-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-right:4px}
+.risk-high{background:#ffcdd2;color:#c62828}
+.risk-mid{background:#fff9c4;color:#f57f17}
+.risk-low{background:#c8e6c9;color:#2e7d32}
+.todo-proj{font-weight:700;min-width:56px;font-size:10px}
+.todo-task{flex:1;font-weight:500}
+.todo-owner{color:#666;min-width:60px;font-size:10px}
+.todo-date{color:#999;font-size:10px;min-width:85px;text-align:right}
+.todo-priority{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;min-width:20px;text-align:center}
+.todo-p0{background:#fce4ec;color:#c62828}.todo-p1{background:#fff3e0;color:#e65100}.todo-p2{background:#e8f5e9;color:#2e7d32}
+.todo-countdown{font-size:10px;font-weight:700;min-width:50px;text-align:center}
+.countdown-overdue{color:#f44336}.countdown-urgent{color:#ff6f00}.countdown-ok{color:#43a047}
+.todo-empty{padding:16px;text-align:center;color:#aaa;font-size:12px}
+.todo-summary{display:flex;gap:12px;justify-content:center;margin:0 16px 8px;flex-wrap:wrap}
+.summary-card{background:#fff;border-radius:10px;padding:10px 16px;box-shadow:0 2px 6px rgba(0,0,0,.06);text-align:center;min-width:100px}
+body.dark .summary-card{background:#16213e}
+.summary-card .num{font-size:24px;font-weight:800}
+.summary-card .label{font-size:10px;color:#888;margin-top:1px}
+.gantt-wrapper{margin:0 16px 16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow-x:auto;position:relative}
+body.dark .gantt-wrapper{background:#16213e}
+canvas{display:block}
+.gantt-tooltip{display:none;position:fixed;background:rgba(0,0,0,.92);color:#fff;padding:12px 16px;border-radius:8px;font-size:12px;z-index:999;pointer-events:none;max-width:320px;line-height:1.7;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.gantt-tooltip .tt-title{font-weight:700;font-size:13px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:4px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.update-toggle{display:flex}
+.update-toggle-btn{padding:9px 24px;border:none;background:linear-gradient(135deg,#43a047,#66bb6a);color:#fff;border-radius:24px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 3px 10px rgba(67,160,71,.3);transition:all .2s;line-height:1.2}
+.update-toggle-btn:hover{transform:translateY(-1px)}
+.update-panel{margin:0 16px 12px;display:none;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+body.dark .update-panel{background:#16213e}
+.update-panel.show{display:block}
+.update-header{background:linear-gradient(135deg,#43a047,#2e7d32);color:#fff;padding:14px 20px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.update-proj-tabs{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid #eee;flex-wrap:wrap}
+body.dark .update-proj-tabs{border-color:#333}
+.update-proj-tab{padding:5px 14px;border:1px solid #ddd;border-radius:16px;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;background:#fff}
+.update-proj-tab:hover,.update-proj-tab.active{background:#1a73e8;color:#fff;border-color:#1a73e8}
+body.dark .update-proj-tab{background:#1a1a3e;border-color:#444;color:#ccc}
+.update-list{padding:8px 16px 16px;max-height:400px;overflow-y:auto}
+.update-phase{font-weight:700;font-size:12px;color:#1a73e8;padding:8px 0 4px;border-bottom:1px solid #f0f0f0;margin-top:4px}
+.update-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid #f8f8f8;font-size:12px;transition:background .15s}
+.update-row:hover{background:#f0f4ff}
+body.dark .update-row{border-color:#2a2a4e}
+.task-name{flex:1;font-weight:500}
+.owner-tag{color:#888;font-size:10px;min-width:70px}
+.status-select{padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:11px;cursor:pointer;outline:none}
+.s-done{background:#c8e6c9;color:#2e7d32;border-color:#a5d6a7}
+.s-progress{background:#fff9c4;color:#f57f17;border-color:#fff176}
+.s-todo{background:#e0e0e0;color:#616161;border-color:#bdbdbd}
+.save-hint{position:fixed;top:20px;right:20px;background:#43a047;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:1000;pointer-events:none}
+.save-hint.show{opacity:1}
+.report-panel{margin:0 16px 12px;display:none;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+body.dark .report-panel{background:#16213e}
+.report-panel.show{display:block}
+.report-header{background:linear-gradient(135deg,#5e35b1,#7c4dff);color:#fff;padding:14px 20px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.report-content{padding:16px;max-height:500px;overflow-y:auto}
+.proj-block{border-left:4px solid #ccc;padding:10px 14px;margin:8px 0;background:#fafbfc;border-radius:0 8px 8px 0;font-size:12px;line-height:1.8}
+body.dark .proj-block{background:#1a1a3e}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:4px}
+.stat-item{background:#f0f4ff;padding:2px 8px;border-radius:4px}
+body.dark .stat-item{background:#16213e}
+.copy-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;z-index:1000;pointer-events:none}
+.copy-toast.show{opacity:1}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-size:16px;color:#1a73e8}
+.loading-overlay .spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top-color:#1a73e8;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.data-info{text-align:center;margin:4px 16px 8px;font-size:11px;color:#999}
+.data-info a{color:#1a73e8;text-decoration:none}
+.data-info a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div>正在加载项目数据...</div>
+<div class="header">
+  <h2 id="headerTitle">加载中...</h2>
+  <p id="headerSubtitle"></p>
+  <div class="countdown-bar" id="countdownBar"></div>
+</div>
+<div class="progress-rings" id="progressRings"></div>
+<div class="data-info" style="display:none"></div>
+<div class="toolbar">
+  <div id="projectTabs"></div>
+  <div class="sep"></div>
+  <select class="filter-select" id="filterOwner" onchange="applyFilters()"><option value="">👤 全部负责人</option></select>
+  <select class="filter-select" id="filterPriority" onchange="applyFilters()"><option value="">🏷️ 全部优先级</option><option value="P0">P0</option><option value="P1">P1</option><option value="P2">P2</option></select>
+  <input class="search-box" id="searchBox" placeholder="🔍 搜索任务..." oninput="applyFilters()">
+  <div class="sep"></div>
+  <button class="icon-btn" id="cpBtn" onclick="toggleCriticalPath()">🔥 关键路径</button>
+  <button class="icon-btn" id="darkBtn" onclick="toggleDark()">🌙</button>
+  <button class="icon-btn" onclick="exportPNG()">📥 导出</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#43a047,#66bb6a)"></div>已完成</div>
+  <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#fb8c00,#ffb74d)"></div>进行中</div>
+  <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#1e88e5,#64b5f6)"></div>未开始</div>
+  <div class="legend-item"><div class="legend-color" style="background:#f44336;animation:blink 1.2s infinite"></div>风险项</div>
+  <div class="legend-item"><div class="legend-color" style="background:#f44336;width:2px;height:16px"></div>今日</div>
+</div>
+<div class="todo-toggle" id="todoToggleWrap"><button class="todo-toggle-btn" onclick="toggleTodo()">📋 今日待办 <span class="badge" id="todoBadge">0</span></button></div>
+<div class="todo-summary" id="todoSummary" style="display:none"></div>
+<div class="todo-panel" id="todoPanel"></div>
+<div style="display:flex;justify-content:center;gap:10px;margin:0 16px 8px">
+  <div class="update-toggle"><button class="update-toggle-btn" onclick="toggleUpdatePanel()">✏️ 更新任务状态</button></div>
+  <div><button class="todo-toggle-btn" style="background:linear-gradient(135deg,#5e35b1,#7c4dff)" onclick="toggleReport()">📊 生成周报</button></div>
+</div>
+<div class="update-panel" id="updatePanel">
+  <div class="update-header"><span>✏️ 任务状态更新</span><span id="saveHint" class="save-hint">✅ 已保存</span></div>
+  <div class="update-proj-tabs" id="updateProjTabs"></div>
+  <div class="update-list" id="updateList"></div>
+</div>
+<div class="report-panel" id="reportPanel">
+  <div class="report-header"><span>📊 项目进展周报</span><div><button class="icon-btn" style="margin-right:6px;color:#fff;border-color:rgba(255,255,255,.4)" onclick="copyReport()">📋 复制文本</button><button class="icon-btn" style="color:#fff;border-color:rgba(255,255,255,.4)" onclick="copyReportMarkdown()">📝 复制Markdown</button></div></div>
+  <div class="report-content" id="reportContent"></div>
+</div>
+<div class="gantt-wrapper"><canvas id="ganttCanvas"></canvas></div>
+<div class="gantt-tooltip" id="tooltip"></div>
+<div class="copy-toast" id="copyToast">✅ 已复制到剪贴板</div>
+<script>
+// ========== DATA LOADING ==========
+let CONFIG = {};
+let PROJECTS = {};
+let ALL_MILESTONES = [];
+let PROJECT_SHORT_NAMES = {};
+let TIME_START, TIME_END, TODAY, TODAY_STR, todayMs;
+let ROW_H = 32, HDR_H = 48, LEFT_W = 440, DAY_W = 10;
+let totalDays, CHART_W, FULL_W;
+let currentProject = "all";
+let filterOwner = "", filterPriority = "", searchText = "";
+let showCriticalPath = false, isDark = false;
+let collapsedPhases = {};
+let updateProjKey = "";
+let rowRects = [];
+let reportText = "", reportMarkdown = "";
+let todoVisible = false;
+const canvas = document.getElementById("ganttCanvas");
+const ctx = canvas.getContext("2d");
+const dpr = window.devicePixelRatio || 1;
+const blinkPhase = { val: 1 };
+let animFrame = 0;
+
+async function loadAllData() {
+    try {
+        const configResp = await fetch("data/config.json?t=" + Date.now());
+        CONFIG = await configResp.json();
+        document.title = CONFIG.title || "项目甘特图";
+        document.getElementById("headerTitle").textContent = CONFIG.title || "项目甘特图";
+        document.getElementById("headerSubtitle").textContent = CONFIG.subtitle || "";
+        TIME_START = new Date(CONFIG.timeRange.start);
+        TIME_END = new Date(CONFIG.timeRange.end);
+        const now = new Date();
+        TODAY_STR = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
+        TODAY = new Date(TODAY_STR);
+        todayMs = TODAY.getTime();
+        totalDays = Math.ceil((TIME_END - TIME_START) / 86400000);
+        CHART_W = totalDays * DAY_W;
+        FULL_W = LEFT_W + CHART_W + 10;
+        ALL_MILESTONES = CONFIG.milestones || [];
+        PROJECTS = {};
+        PROJECT_SHORT_NAMES = {};
+        const projectConfigs = CONFIG.projects || [];
+        if (projectConfigs.length > 0) updateProjKey = projectConfigs[0].key;
+        const loadPromises = projectConfigs.map(async (pc) => {
+            const resp = await fetch("data/" + pc.file + "?t=" + Date.now());
+            const projData = await resp.json();
+            PROJECTS[pc.key] = projData;
+            PROJECT_SHORT_NAMES[pc.key] = pc.shortName || projData.name;
+        });
+        await Promise.all(loadPromises);
+        initUI();
+        document.getElementById("loadingOverlay").style.display = "none";
+    } catch (err) {
+        document.getElementById("loadingOverlay").innerHTML = '<div style="color:#f44336;text-align:center"><div style="font-size:24px;margin-bottom:12px">❌ 数据加载失败</div><div style="font-size:14px;max-width:500px">' + err.message + '</div><div style="font-size:12px;color:#999;margin-top:12px">请确保通过 HTTP 服务器访问（非 file:// 协议）<br>运行: python3 -m http.server 8080</div></div>';
+        console.error("Data load error:", err);
+    }
+}
+
+function initUI() {
+    buildProjectTabs();
+    renderCountdown();
+    renderProgressRings();
+    initOwnerFilter();
+    buildTodoPanel();
+    render();
+    animateBlink();
+}
+
+// ========== PROJECT TABS ==========
+function buildProjectTabs() {
+    let html = '<button class="tab-btn active" onclick="switchProject(\'all\', this)">📊 全部</button>';
+    for (const pc of CONFIG.projects) {
+        html += '<button class="tab-btn" onclick="switchProject(\'' + pc.key + '\', this)">' + pc.shortName + '</button>';
+    }
+    document.getElementById("projectTabs").innerHTML = html;
+}
+
+// ========== COUNTDOWN ==========
+function renderCountdown() {
+    let html = "";
+    const seen = new Set();
+    ALL_MILESTONES.forEach(ms => {
+        const key = ms.date + ms.label;
+        if (seen.has(key)) return;
+        seen.add(key);
+        const daysLeft = Math.ceil((new Date(ms.date) - TODAY) / 86400000);
+        const projNames = ms.projects.map(k => PROJECT_SHORT_NAMES[k] || k).join(" ");
+        html += '<div class="countdown-item ' + (daysLeft <= 14 ? "urgent-cd" : "") + '">' + projNames + ' 距' + ms.label + ' <span class="days">' + daysLeft + '</span> 天</div>';
+    });
+    document.getElementById("countdownBar").innerHTML = html;
+}
+
+// ========== PROGRESS RINGS ==========
+function renderProgressRings() {
+    let html = "";
+    for (const [k, proj] of Object.entries(PROJECTS)) {
+        const tasks = proj.tasks.filter(t => t.task && t.start && t.end);
+        const done = tasks.filter(t => t.status === "done").length;
+        const prog = tasks.filter(t => t.status === "progress").length;
+        const todo = tasks.filter(t => t.status === "todo").length;
+        const total = tasks.length;
+        const pct = total ? Math.round(((done + prog * 0.5) / total) * 100) : 0;
+        const r = 20, c = 2 * Math.PI * r;
+        const doneArc = (done / total) * c;
+        const progArc = (prog / total) * c;
+        html += '<div class="ring-card"><svg class="ring-svg" viewBox="0 0 52 52"><circle cx="26" cy="26" r="' + r + '" fill="none" stroke="#e0e0e0" stroke-width="5"/><circle cx="26" cy="26" r="' + r + '" fill="none" stroke="#43a047" stroke-width="5" stroke-dasharray="' + doneArc + ' ' + (c - doneArc) + '" stroke-dashoffset="0" transform="rotate(-90 26 26)"/><circle cx="26" cy="26" r="' + r + '" fill="none" stroke="#fb8c00" stroke-width="5" stroke-dasharray="' + progArc + ' ' + (c - progArc) + '" stroke-dashoffset="' + (-doneArc) + '" transform="rotate(-90 26 26)"/><text x="26" y="29" text-anchor="middle" font-size="11" font-weight="800" fill="' + proj.color + '">' + pct + '%</text></svg><div><div class="ring-label" style="color:' + proj.color + '">' + (PROJECT_SHORT_NAMES[k] || proj.name) + '</div><div class="ring-stats">✅' + done + ' 🔄' + prog + ' ⏳' + todo + ' / ' + total + '项</div></div></div>';
+    }
+    document.getElementById("progressRings").innerHTML = html;
+}
+
+// ========== OWNER FILTER ==========
+function initOwnerFilter() {
+    const owners = new Set();
+    for (const proj of Object.values(PROJECTS)) {
+        proj.tasks.forEach(t => { if (t.owner) t.owner.split("/").forEach(o => { const n = o.trim().replace(/\(.*\)/, ""); if (n) owners.add(n); }); });
+    }
+    const sel = document.getElementById("filterOwner");
+    sel.innerHTML = '<option value="">👤 全部负责人</option>';
+    [...owners].sort().forEach(o => { const opt = document.createElement("option"); opt.value = o; opt.textContent = o; sel.appendChild(opt); });
+}
+
+// ========== FILTERS ==========
+function applyFilters() {
+    filterOwner = document.getElementById("filterOwner").value;
+    filterPriority = document.getElementById("filterPriority").value;
+    searchText = document.getElementById("searchBox").value.trim().toLowerCase();
+    render();
+}
+function matchesFilter(t) {
+    if (t.status === "phase" || t.projHeader) return true;
+    if (filterOwner && !(t.owner || "").includes(filterOwner)) return false;
+    if (filterPriority && t.p !== filterPriority) return false;
+    if (searchText && !(t.task || "").toLowerCase().includes(searchText) && !(t.owner || "").toLowerCase().includes(searchText)) return false;
+    return true;
+}
+
+// ========== CRITICAL PATH / DARK / EXPORT ==========
+function toggleCriticalPath() { showCriticalPath = !showCriticalPath; document.getElementById("cpBtn").classList.toggle("active", showCriticalPath); render(); }
+function isCritical(t) { return t.p === "P0" && t.status !== "done"; }
+function toggleDark() { isDark = !isDark; document.body.classList.toggle("dark", isDark); document.getElementById("darkBtn").textContent = isDark ? "☀️" : "🌙"; render(); }
+function exportPNG() { const link = document.createElement("a"); link.download = (CONFIG.title || "甘特图") + ".png"; link.href = canvas.toDataURL("image/png"); link.click(); }
+
+// ========== PHASE / RISK ==========
+function getPhaseKey(projKey, phaseName) { return projKey + "::" + phaseName; }
+function isRisk(t) {
+    if (t.status === "done" || t.status === "phase") return false;
+    const endMs = new Date(t.end).getTime(), startMs = new Date(t.start).getTime();
+    if (t.status === "todo" && startMs <= todayMs && endMs < todayMs) return true;
+    if (t.status === "progress" && endMs < todayMs) return true;
+    if (t.status === "todo" && startMs <= todayMs && (endMs - todayMs) / 86400000 <= 2) return true;
+    return false;
+}
+
+// ========== MILESTONES ==========
+function getVisibleMilestones() {
+    if (currentProject === "all") return ALL_MILESTONES;
+    return ALL_MILESTONES.filter(m => m.projects.includes(currentProject));
+}
+
+// ========== GANTT RENDER ==========
+function dayOff(ds) { return Math.ceil((new Date(ds) - TIME_START) / 86400000); }
+function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+function getRows(projKey) {
+    let rows = [];
+    const addProj = (k, proj) => {
+        rows.push({ projHeader: true, name: proj.name, color: proj.color, deadline: proj.deadlineLabel + "前上线" });
+        let currentPhase = null;
+        for (const t of proj.tasks) {
+            if (t.status === "phase") { currentPhase = t.phase; const pk = getPhaseKey(k, currentPhase); rows.push({ ...t, projColor: proj.color, phaseKey: pk, collapsible: true }); continue; }
+            if (!t.start || !t.end) continue;
+            if (currentPhase && collapsedPhases[getPhaseKey(k, currentPhase)]) continue;
+            if (!matchesFilter(t)) continue;
+            rows.push({ ...t, projColor: proj.color });
+        }
+    };
+    if (projKey === "all") { for (const [k, proj] of Object.entries(PROJECTS)) addProj(k, proj); }
+    else { addProj(projKey, PROJECTS[projKey]); }
+    return rows;
+}
+
+function animateBlink() { animFrame++; blinkPhase.val = 0.4 + 0.6 * Math.abs(Math.sin(animFrame * 0.06)); render(); requestAnimationFrame(animateBlink); }
+
+function render() {
+    const rows = getRows(currentProject);
+    const canvasH = HDR_H + rows.length * ROW_H + 10;
+    canvas.width = FULL_W * dpr; canvas.height = canvasH * dpr;
+    canvas.style.width = FULL_W + "px"; canvas.style.height = canvasH + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const bg = isDark ? "#16213e" : "#fff", textColor = isDark ? "#e0e0e0" : "#333";
+    const hdrBg = isDark ? "#0f3460" : "#f8f9fa", gridColor = isDark ? "#1a1a4e" : "#f3f3f3", lineColor = isDark ? "#2a2a5e" : "#f0f0f0";
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, FULL_W, canvasH);
+    ctx.fillStyle = hdrBg; ctx.fillRect(0, 0, FULL_W, HDR_H);
+    ctx.strokeStyle = isDark ? "#333" : "#ddd"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, HDR_H); ctx.lineTo(FULL_W, HDR_H); ctx.stroke();
+    ctx.fillStyle = isDark ? "#aaa" : "#555"; ctx.font = "bold 11px -apple-system,'PingFang SC',sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("任务名称", 14, 20); ctx.fillText("优先级", 280, 20); ctx.fillText("负责人", 330, 20); ctx.fillText("状态", 405, 20);
+    let curMonth = -1;
+    const mNames = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+    for (let d = 0; d < totalDays; d++) {
+        const date = new Date(TIME_START.getTime() + d * 86400000);
+        const m = date.getMonth(), dom = date.getDate(), dow = date.getDay();
+        const x = LEFT_W + d * DAY_W;
+        if (m !== curMonth) { curMonth = m; ctx.fillStyle = "#1a73e8"; ctx.font = "bold 11px -apple-system,sans-serif"; ctx.textAlign = "left"; ctx.fillText(mNames[m], x + 3, 16); }
+        if (dom % 5 === 1) { ctx.fillStyle = isDark ? "#666" : "#aaa"; ctx.font = "9px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText(dom, x + DAY_W / 2, 36); }
+        if (dow === 0 || dow === 6) { ctx.fillStyle = isDark ? "rgba(255,255,255,.02)" : "rgba(0,0,0,.018)"; ctx.fillRect(x, HDR_H, DAY_W, canvasH - HDR_H); }
+        if (dow === 1) { ctx.strokeStyle = gridColor; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(x, HDR_H); ctx.lineTo(x, canvasH); ctx.stroke(); }
+    }
+    getVisibleMilestones().forEach(ms => {
+        const mx = LEFT_W + dayOff(ms.date) * DAY_W;
+        ctx.strokeStyle = ms.color; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(mx, HDR_H); ctx.lineTo(mx, canvasH); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = ms.color; roundRect(mx - 22, HDR_H - 13, 44, 13, 3); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "bold 9px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText(ms.label, mx, HDR_H - 3);
+    });
+    const todayX = LEFT_W + dayOff(TODAY_STR) * DAY_W;
+    ctx.strokeStyle = "#f44336"; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(todayX, HDR_H); ctx.lineTo(todayX, canvasH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "#f44336"; roundRect(todayX - 14, HDR_H - 13, 28, 13, 3); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = "bold 8px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText("今日", todayX, HDR_H - 3);
+    rowRects = [];
+    rows.forEach((row, i) => {
+        const y = HDR_H + i * ROW_H;
+        if (row.projHeader) {
+            ctx.fillStyle = row.color; ctx.globalAlpha = isDark ? 0.2 : 0.1; ctx.fillRect(0, y, FULL_W, ROW_H); ctx.globalAlpha = 1;
+            ctx.fillStyle = row.color; ctx.font = "bold 13px -apple-system,'PingFang SC',sans-serif"; ctx.textAlign = "left";
+            ctx.fillText(row.name + "  (" + row.deadline + ")", 14, y + ROW_H / 2 + 5);
+            ctx.strokeStyle = row.color; ctx.globalAlpha = 0.3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(FULL_W, y + ROW_H); ctx.stroke(); ctx.globalAlpha = 1;
+            return;
+        }
+        const isPhase = row.status === "phase";
+        if (isPhase) { ctx.fillStyle = isDark ? "#1a2744" : "#e8f0fe"; ctx.fillRect(0, y, FULL_W, ROW_H); }
+        ctx.strokeStyle = lineColor; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(FULL_W, y + ROW_H); ctx.stroke();
+        ctx.textAlign = "left";
+        if (isPhase) {
+            const collapsed = collapsedPhases[row.phaseKey];
+            ctx.fillStyle = "#1a73e8"; ctx.font = "bold 12px -apple-system,'PingFang SC',sans-serif";
+            ctx.fillText((collapsed ? "▶" : "▼") + " " + row.phase, 10, y + ROW_H / 2 + 4);
+            rowRects.push({ x: 0, y, w: LEFT_W, h: ROW_H, type: "phase", phaseKey: row.phaseKey });
+        } else {
+            const risk = isRisk(row), critical = showCriticalPath && isCritical(row);
+            ctx.fillStyle = risk ? "#f44336" : (critical ? "#ff6f00" : (isDark ? "#ccc" : "#444"));
+            ctx.font = (critical ? "bold " : "") + "11px -apple-system,'PingFang SC',sans-serif";
+            const label = (row.task || "").length > 24 ? row.task.slice(0, 24) + ".." : row.task;
+            ctx.fillText(label, 26, y + ROW_H / 2 + 4);
+        }
+        if (row.p) {
+            const colors = { P0: { bg: "#fce4ec", fg: "#c62828" }, P1: { bg: "#fff3e0", fg: "#e65100" }, P2: { bg: "#e8f5e9", fg: "#2e7d32" } };
+            const c = colors[row.p];
+            if (c) { ctx.fillStyle = c.bg; roundRect(280, y + ROW_H / 2 - 7, 22, 14, 3); ctx.fill(); ctx.fillStyle = c.fg; ctx.font = "bold 9px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText(row.p, 291, y + ROW_H / 2 + 3); ctx.textAlign = "left"; }
+        }
+        if (row.owner) { ctx.fillStyle = isDark ? "#aaa" : "#777"; ctx.font = "10px -apple-system,'PingFang SC',sans-serif"; ctx.fillText(row.owner.length > 8 ? row.owner.slice(0, 8) + ".." : row.owner, 315, y + ROW_H / 2 + 4); }
+        if (!isPhase && row.status) {
+            const sMap = { done: { bg: "#c8e6c9", fg: "#2e7d32", t: "已完成" }, progress: { bg: "#fff9c4", fg: "#f57f17", t: "进行中" }, todo: { bg: "#e0e0e0", fg: "#616161", t: "未开始" } };
+            const s = sMap[row.status];
+            if (s) { ctx.fillStyle = s.bg; roundRect(398, y + ROW_H / 2 - 7, 38, 14, 7); ctx.fill(); ctx.fillStyle = s.fg; ctx.font = "bold 9px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText(s.t, 417, y + ROW_H / 2 + 3); ctx.textAlign = "left"; }
+        }
+        if (row.start && row.end) {
+            const s0 = dayOff(row.start), s1 = dayOff(row.end);
+            const bx = LEFT_W + s0 * DAY_W, bw = Math.max((s1 - s0) * DAY_W, 5);
+            const risk = isRisk(row), critical = showCriticalPath && isCritical(row);
+            if (isPhase) {
+                const by = y + ROW_H / 2 + 2;
+                const g = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+                g.addColorStop(0, row.projColor || "#5e35b1"); g.addColorStop(1, (row.projColor || "#5e35b1") + "99");
+                ctx.fillStyle = g; roundRect(bx, by, bw, 5, 2.5); ctx.fill();
+                ctx.fillStyle = row.projColor || "#5e35b1";
+                [bx - 2, bx + bw - 2].forEach(dx => { ctx.beginPath(); ctx.moveTo(dx + 3, by + 2.5); ctx.lineTo(dx + 6, by - 1); ctx.lineTo(dx + 9, by + 2.5); ctx.lineTo(dx + 6, by + 7); ctx.closePath(); ctx.fill(); });
+            } else {
+                const by = y + 7, bh = ROW_H - 14;
+                if (critical) { ctx.strokeStyle = "#ff6f00"; ctx.lineWidth = 2; roundRect(bx - 1, by - 1, bw + 2, bh + 2, 4); ctx.stroke(); }
+                const g = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+                const cMap = { done: ["#43a047", "#66bb6a"], progress: ["#fb8c00", "#ffb74d"], todo: ["#1e88e5", "#64b5f6"] };
+                const cc = cMap[row.status] || cMap.todo;
+                g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]);
+                ctx.fillStyle = g; roundRect(bx, by, bw, bh, 3); ctx.fill();
+                if (risk) {
+                    ctx.globalAlpha = blinkPhase.val;
+                    ctx.strokeStyle = "#f44336"; ctx.lineWidth = 2; ctx.setLineDash([3, 2]); roundRect(bx - 1, by - 1, bw + 2, bh + 2, 4); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.font = "bold 10px -apple-system,sans-serif"; ctx.textAlign = "right"; ctx.fillStyle = "#f44336";
+                    ctx.fillText("⚠️", bx + bw + 14, y + ROW_H / 2 + 4); ctx.globalAlpha = 1;
+                }
+                if (bw > 50) { ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.font = "bold 8px -apple-system,sans-serif"; ctx.textAlign = "center"; ctx.fillText(row.start.slice(5) + " → " + row.end.slice(5), bx + bw / 2, by + bh / 2 + 3); ctx.textAlign = "left"; }
+                rowRects.push({ x: bx, y: by, w: bw, h: bh, type: "bar", data: row });
+            }
+        }
+    });
+    ctx.strokeStyle = isDark ? "#333" : "#ddd"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(LEFT_W, 0); ctx.lineTo(LEFT_W, canvasH); ctx.stroke();
+}
+
+// ========== TOOLTIP ==========
+const tooltip = document.getElementById("tooltip");
+canvas.addEventListener("mousemove", function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    let found = false;
+    for (const r of rowRects) {
+        if (r.type === "bar" && mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+            const d = r.data;
+            const daysLeft = Math.ceil((new Date(d.end) - TODAY) / 86400000);
+            const dlText = daysLeft < 0 ? '<span style="color:#f44336">已逾期' + (-daysLeft) + '天</span>' : daysLeft === 0 ? '<span style="color:#ff6f00">今日截止</span>' : '剩余' + daysLeft + '天';
+            const statusMap = { done: "✅ 已完成", progress: "🔄 进行中", todo: "⏳ 未开始" };
+            tooltip.innerHTML = '<div class="tt-title">' + (d.task || "") + '</div><div>负责人: ' + (d.owner || "未指定") + '</div><div>优先级: ' + (d.p || "-") + '</div><div>时间: ' + d.start + ' → ' + d.end + '</div><div>状态: ' + (statusMap[d.status] || d.status) + '</div><div>倒计时: ' + dlText + '</div>';
+            tooltip.style.display = "block"; tooltip.style.left = (e.clientX + 12) + "px"; tooltip.style.top = (e.clientY - 80) + "px";
+            found = true; break;
+        }
+    }
+    if (!found) tooltip.style.display = "none";
+});
+canvas.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+canvas.addEventListener("click", function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    for (const r of rowRects) {
+        if (r.type === "phase" && mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+            collapsedPhases[r.phaseKey] = !collapsedPhases[r.phaseKey]; render(); break;
+        }
+    }
+});
+
+// ========== PROJECT SWITCH ==========
+function switchProject(key, btn) {
+    currentProject = key;
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const todoToggle = document.getElementById("todoToggleWrap");
+    const todoPanel = document.getElementById("todoPanel");
+    const todoSummary = document.getElementById("todoSummary");
+    if (key === "all") { todoToggle.style.display = "flex"; }
+    else { todoToggle.style.display = "none"; todoPanel.classList.remove("show"); todoSummary.style.display = "none"; todoVisible = false; }
+    render();
+}
+
+// ========== TODAY TODO ==========
+function getDaysLeft(endDate) { return Math.ceil((new Date(endDate).getTime() - todayMs) / 86400000); }
+function collectTodayTodos() {
+    const inProgress = [], startingToday = [], dueSoon = [];
+    for (const [k, proj] of Object.entries(PROJECTS)) {
+        for (const t of proj.tasks) {
+            if (t.status === "phase" || !t.start || !t.end || t.status === "done") continue;
+            const startMs = new Date(t.start).getTime(), endMs = new Date(t.end).getTime();
+            const item = { ...t, projLabel: PROJECT_SHORT_NAMES[k] || proj.name, projColor: proj.color, daysLeft: getDaysLeft(t.end) };
+            if (t.status === "progress") inProgress.push(item);
+            else if (t.status === "todo" && startMs <= todayMs && endMs >= todayMs) startingToday.push(item);
+            else if (t.status === "todo" && startMs > todayMs && startMs <= todayMs + 3 * 86400000) dueSoon.push(item);
+        }
+    }
+    inProgress.sort((a, b) => a.daysLeft - b.daysLeft);
+    startingToday.sort((a, b) => a.daysLeft - b.daysLeft);
+    dueSoon.sort((a, b) => new Date(a.start) - new Date(b.start));
+    return { inProgress, startingToday, dueSoon };
+}
+function renderTodoItem(item, idx) {
+    const uc = item.daysLeft <= 0 ? "urgent" : item.daysLeft <= 3 ? "warn" : "normal";
+    const cc = item.daysLeft <= 0 ? "countdown-overdue" : item.daysLeft <= 3 ? "countdown-urgent" : "countdown-ok";
+    const ct = item.daysLeft < 0 ? "已逾期" + (-item.daysLeft) + "天" : item.daysLeft === 0 ? "今日截止" : "剩余" + item.daysLeft + "天";
+    const pc = item.p ? "todo-" + item.p.toLowerCase() : "";
+    const hasRemark = item.remark || item.risk;
+    const remarkId = "remark_" + idx + "_" + Math.random().toString(36).slice(2, 8);
+    let remarkBtn = "";
+    let remarkDetail = "";
+    if (hasRemark) {
+        remarkBtn = '<button class="todo-remark-btn" onclick="toggleRemark(\'' + remarkId + '\', this)">📝 查看原因</button>';
+        let detailContent = "";
+        if (item.risk) {
+            const riskClass = item.risk.includes("高") ? "risk-high" : item.risk.includes("低") ? "risk-low" : "risk-mid";
+            detailContent += '<span class="todo-risk-tag ' + riskClass + '">⚠️ ' + item.risk + '</span>';
+        }
+        if (item.remark) {
+            detailContent += item.remark.replace(/\n/g, "<br>");
+        }
+        remarkDetail = '<div class="todo-remark-detail" id="' + remarkId + '">' + detailContent + '</div>';
+    }
+    return '<div class="todo-item ' + uc + '"><div class="todo-main-row"><span class="todo-proj" style="color:' + item.projColor + '">' + item.projLabel + '</span>' + (item.p ? '<span class="todo-priority ' + pc + '">' + item.p + '</span>' : '<span style="min-width:20px"></span>') + '<span class="todo-task">' + (item.task || "") + '</span><span class="todo-owner">' + (item.owner ? "👤 " + (item.owner.length > 6 ? item.owner.slice(0,6)+".." : item.owner) : "") + '</span><span class="todo-date">' + (item.start ? item.start.slice(5) : "") + ' → ' + (item.end ? item.end.slice(5) : "") + '</span><span class="todo-countdown ' + cc + '">' + ct + '</span>' + remarkBtn + '</div>' + remarkDetail + '</div>';
+}
+function renderSection(title, bgColor, items) {
+    if (!items.length) return "";
+    return '<div class="todo-section"><div class="todo-section-header" style="background:' + bgColor + '">' + title + ' <span class="count">' + items.length + '项</span></div><div class="todo-list">' + items.map((item, i) => renderTodoItem(item, i)).join("") + '</div></div>';
+}
+function buildTodoPanel() {
+    const { inProgress, startingToday, dueSoon } = collectTodayTodos();
+    const total = inProgress.length + startingToday.length + dueSoon.length;
+    const overdueCount = [...inProgress, ...startingToday].filter(i => i.daysLeft <= 0).length;
+    const urgentCount = [...inProgress, ...startingToday].filter(i => i.daysLeft > 0 && i.daysLeft <= 3).length;
+    document.getElementById("todoBadge").textContent = total;
+    document.getElementById("todoSummary").innerHTML = '<div class="summary-card"><div class="num" style="color:#fb8c00">' + inProgress.length + '</div><div class="label">进行中</div></div><div class="summary-card"><div class="num" style="color:#1e88e5">' + startingToday.length + '</div><div class="label">今日应启动</div></div><div class="summary-card"><div class="num" style="color:#9c27b0">' + dueSoon.length + '</div><div class="label">3日内启动</div></div><div class="summary-card"><div class="num" style="color:#f44336">' + overdueCount + '</div><div class="label">已逾期</div></div><div class="summary-card"><div class="num" style="color:#ff6f00">' + urgentCount + '</div><div class="label">即将到期</div></div>';
+    let html = "";
+    if (!total) html = '<div class="todo-section"><div class="todo-empty">🎉 今天没有待办任务！</div></div>';
+    else { html += renderSection("🔥 进行中 — 需持续跟进", "#fb8c00", inProgress); html += renderSection("📌 今日应启动 — 请尽快推进", "#1e88e5", startingToday); html += renderSection("📅 未来3天内启动 — 提前准备", "#7b1fa2", dueSoon); }
+    document.getElementById("todoPanel").innerHTML = html;
+}
+function toggleTodo() { todoVisible = !todoVisible; document.getElementById("todoPanel").classList.toggle("show", todoVisible); document.getElementById("todoSummary").style.display = todoVisible ? "flex" : "none"; }
+function toggleRemark(remarkId, btn) {
+    const detail = document.getElementById(remarkId);
+    if (!detail) return;
+    const isShow = !detail.classList.contains("show");
+    detail.classList.toggle("show", isShow);
+    btn.textContent = isShow ? "🔽 收起原因" : "📝 查看原因";
+}
+
+// ========== UPDATE PANEL ==========
+function toggleUpdatePanel() { const panel = document.getElementById("updatePanel"); panel.classList.toggle("show"); if (panel.classList.contains("show")) { buildUpdateProjTabs(); buildUpdateList(); } }
+function buildUpdateProjTabs() {
+    let html = "";
+    for (const pc of CONFIG.projects) {
+        const active = pc.key === updateProjKey ? " active" : "";
+        html += '<div class="update-proj-tab' + active + '" onclick="switchUpdateProj(\'' + pc.key + '\', this)">' + pc.shortName + '</div>';
+    }
+    document.getElementById("updateProjTabs").innerHTML = html;
+}
+function switchUpdateProj(key, el) { updateProjKey = key; document.querySelectorAll(".update-proj-tab").forEach(t => t.classList.remove("active")); el.classList.add("active"); buildUpdateList(); }
+function buildUpdateList() {
+    const proj = PROJECTS[updateProjKey];
+    if (!proj) return;
+    let html = "";
+    proj.tasks.forEach((t, idx) => {
+        if (t.status === "phase") { html += '<div class="update-phase">' + t.phase + '</div>'; return; }
+        if (!t.task) return;
+        const selectClass = t.status === "done" ? "s-done" : t.status === "progress" ? "s-progress" : "s-todo";
+        html += '<div class="update-row"><span class="task-name">' + t.task + '</span><span class="owner-tag">' + (t.owner ? "👤 " + (t.owner.length > 6 ? t.owner.slice(0,6)+".." : t.owner) : "") + '</span><span style="font-size:10px;color:#999">' + (t.p || "") + '</span><select class="status-select ' + selectClass + '" onchange="updateTaskStatus(\'' + updateProjKey + '\', ' + idx + ', this.value, this)"><option value="todo"' + (t.status==="todo"?" selected":"") + '>⏳ 未开始</option><option value="progress"' + (t.status==="progress"?" selected":"") + '>🔄 进行中</option><option value="done"' + (t.status==="done"?" selected":"") + '>✅ 已完成</option></select></div>';
+    });
+    document.getElementById("updateList").innerHTML = html;
+}
+function updateTaskStatus(projKey, taskIdx, newStatus, selectEl) {
+    PROJECTS[projKey].tasks[taskIdx].status = newStatus;
+    selectEl.className = "status-select " + (newStatus === "done" ? "s-done" : newStatus === "progress" ? "s-progress" : "s-todo");
+    renderProgressRings(); buildTodoPanel(); render();
+    const hint = document.getElementById("saveHint"); hint.classList.add("show"); setTimeout(() => hint.classList.remove("show"), 1500);
+    try { localStorage.setItem("gantt_data_" + projKey, JSON.stringify(PROJECTS[projKey].tasks.map(t => t.status))); } catch(e) {}
+}
+function loadSavedStatuses() {
+    for (const [k, proj] of Object.entries(PROJECTS)) {
+        try {
+            const saved = JSON.parse(localStorage.getItem("gantt_data_" + k));
+            if (saved && saved.length === proj.tasks.length) { proj.tasks.forEach((t, i) => { if (saved[i] && t.status !== "phase") t.status = saved[i]; }); }
+        } catch(e) {}
+    }
+}
+
+// ========== WEEKLY REPORT ==========
+function toggleReport() { const panel = document.getElementById("reportPanel"); const isShow = !panel.classList.contains("show"); panel.classList.toggle("show", isShow); if (isShow) generateReport(); }
+function getWeekNumber(d) { const onejan = new Date(d.getFullYear(), 0, 1); return Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7); }
+function generateReport() {
+    const today = new Date(TODAY_STR);
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay() + 1);
+    const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+    const fmt = d => (d.getMonth()+1) + "月" + d.getDate() + "日";
+    const weekLabel = fmt(weekStart) + " - " + fmt(weekEnd);
+    let html = "", plainText = "📊 项目进展周报\n📅 " + weekLabel + "（第" + getWeekNumber(today) + "周）\n" + "═".repeat(36) + "\n\n";
+    let markdown = "## 📊 项目进展周报\n**📅 " + weekLabel + "（第" + getWeekNumber(today) + "周）**\n\n---\n\n";
+    for (const [k, proj] of Object.entries(PROJECTS)) {
+        const projName = PROJECT_SHORT_NAMES[k] || proj.name;
+        const tasks = proj.tasks.filter(t => t.task && t.start && t.end);
+        const done = tasks.filter(t => t.status === "done"), progress = tasks.filter(t => t.status === "progress"), todo = tasks.filter(t => t.status === "todo");
+        const total = tasks.length;
+        const pct = total ? Math.round(((done.length + progress.length * 0.5) / total) * 100) : 0;
+        const riskTasks = tasks.filter(t => isRisk(t));
+        const deadlineDays = Math.ceil((new Date(proj.deadline) - today) / 86400000);
+        const thisWeekTasks = tasks.filter(t => { const s = new Date(t.start), e = new Date(t.end); return s <= weekEnd && e >= weekStart; });
+        const thisWeekDone = thisWeekTasks.filter(t => t.status === "done");
+        const thisWeekProgress = thisWeekTasks.filter(t => t.status === "progress");
+        const nextWeekStart = new Date(weekEnd); nextWeekStart.setDate(nextWeekStart.getDate() + 1);
+        const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+        const nextWeekTasks = tasks.filter(t => { const s = new Date(t.start); return s >= nextWeekStart && s <= nextWeekEnd && t.status !== "done"; });
+        html += '<div class="proj-block" style="border-left-color:' + proj.color + '"><h4 style="color:' + proj.color + ';margin-top:0">' + projName + '（距上线 ' + deadlineDays + ' 天）</h4><div class="stat-row"><span class="stat-item">📊 总进度 <b>' + pct + '%</b></span><span class="stat-item">✅ 已完成 <b>' + done.length + '</b>/' + total + '</span><span class="stat-item">🔄 进行中 <b>' + progress.length + '</b></span><span class="stat-item">⏳ 未开始 <b>' + todo.length + '</b></span>' + (riskTasks.length ? '<span class="stat-item" style="color:#f44336">⚠️ 风险 <b>' + riskTasks.length + '</b></span>' : '') + '</div>';
+        if (thisWeekDone.length) { html += '<div style="margin-top:8px"><b>✅ 本周已完成：</b></div>'; thisWeekDone.forEach(t => { html += '<div style="padding-left:16px;font-size:12px">• ' + t.task + (t.owner ? '（' + t.owner + '）' : '') + '</div>'; }); }
+        if (thisWeekProgress.length) { html += '<div style="margin-top:6px"><b>🔄 本周进行中：</b></div>'; thisWeekProgress.forEach(t => { const dl = Math.ceil((new Date(t.end) - today) / 86400000); html += '<div style="padding-left:16px;font-size:12px">• ' + t.task + (t.owner ? '（' + t.owner + '）' : '') + ' [' + t.start.slice(5) + '→' + t.end.slice(5) + ']' + (dl <= 3 ? ' ⚠️剩' + dl + '天' : '') + '</div>'; }); }
+        if (riskTasks.length) { html += '<div style="margin-top:6px;color:#f44336"><b>⚠️ 风险项：</b></div>'; riskTasks.forEach(t => { html += '<div style="padding-left:16px;font-size:12px;color:#f44336">• ' + t.task + (t.owner ? '（' + t.owner + '）' : '') + ' — 已逾期或即将到期</div>'; }); }
+        if (nextWeekTasks.length) { html += '<div style="margin-top:6px"><b>📅 下周计划：</b></div>'; nextWeekTasks.forEach(t => { html += '<div style="padding-left:16px;font-size:12px">• ' + t.task + (t.owner ? '（' + t.owner + '）' : '') + '</div>'; }); }
+        html += '</div>';
+        plainText += "─".repeat(36) + "\n" + projName + "（距上线 " + deadlineDays + " 天）\n📊 总进度 " + pct + "% ｜ ✅完成" + done.length + "/" + total + " ｜ 🔄进行中" + progress.length + " ｜ ⏳未开始" + todo.length + (riskTasks.length ? " ｜ ⚠️风险" + riskTasks.length : "") + "\n\n";
+        if (thisWeekDone.length) { plainText += "✅ 本周已完成：\n"; thisWeekDone.forEach(t => { plainText += "  • " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); plainText += "\n"; }
+        if (thisWeekProgress.length) { plainText += "🔄 本周进行中：\n"; thisWeekProgress.forEach(t => { const dl = Math.ceil((new Date(t.end)-today)/86400000); plainText += "  • " + t.task + (t.owner ? "（" + t.owner + "）" : "") + (dl <= 3 ? " ⚠️剩" + dl + "天" : "") + "\n"; }); plainText += "\n"; }
+        if (riskTasks.length) { plainText += "⚠️ 风险项：\n"; riskTasks.forEach(t => { plainText += "  • " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); plainText += "\n"; }
+        if (nextWeekTasks.length) { plainText += "📅 下周计划：\n"; nextWeekTasks.forEach(t => { plainText += "  • " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); plainText += "\n"; }
+        markdown += "### " + projName + "（距上线 " + deadlineDays + " 天）\n\n| 指标 | 数值 |\n|------|------|\n| 总进度 | **" + pct + "%** |\n| 已完成 | " + done.length + "/" + total + " |\n| 进行中 | " + progress.length + " |\n| 未开始 | " + todo.length + " |\n" + (riskTasks.length ? "| ⚠️风险项 | " + riskTasks.length + " |\n" : "") + "\n";
+        if (thisWeekDone.length) { markdown += "**✅ 本周已完成：**\n"; thisWeekDone.forEach(t => { markdown += "- " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); markdown += "\n"; }
+        if (thisWeekProgress.length) { markdown += "**🔄 本周进行中：**\n"; thisWeekProgress.forEach(t => { const dl=Math.ceil((new Date(t.end)-today)/86400000); markdown += "- " + t.task + (t.owner ? "（" + t.owner + "）" : "") + (dl<=3?" ⚠️剩"+dl+"天":"") + "\n"; }); markdown += "\n"; }
+        if (riskTasks.length) { markdown += "**⚠️ 风险项：**\n"; riskTasks.forEach(t => { markdown += "- " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); markdown += "\n"; }
+        if (nextWeekTasks.length) { markdown += "**📅 下周计划：**\n"; nextWeekTasks.forEach(t => { markdown += "- " + t.task + (t.owner ? "（" + t.owner + "）" : "") + "\n"; }); markdown += "\n"; }
+        markdown += "---\n\n";
+    }
+    reportText = plainText; reportMarkdown = markdown;
+    document.getElementById("reportContent").innerHTML = html;
+}
+function copyReport() { navigator.clipboard.writeText(reportText).then(() => showCopyToast()); }
+function copyReportMarkdown() { navigator.clipboard.writeText(reportMarkdown).then(() => showCopyToast()); }
+function showCopyToast() { const toast = document.getElementById("copyToast"); toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1800); }
+
+// ========== INIT ==========
+loadAllData().then(() => { loadSavedStatuses(); renderProgressRings(); buildTodoPanel(); render(); });
+</script>
+</body>
+</html>

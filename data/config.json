@@ -1,0 +1,50 @@
+{
+  "title": "项目管理综合甘特图",
+  "subtitle": "",
+  "timeRange": {
+    "start": "2026-03-01",
+    "end": "2026-08-31"
+  },
+  "milestones": [
+    {
+      "date": "2026-07-30",
+      "label": "730上线",
+      "color": "#ff6f00",
+      "projects": [
+        "proj1",
+        "proj3",
+        "proj4"
+      ]
+    },
+    {
+      "date": "2026-06-30",
+      "label": "630上线",
+      "color": "#d32f2f",
+      "projects": [
+        "proj2"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "key": "proj1",
+      "file": "proj1.json",
+      "shortName": "🇮🇹🇵🇱🇬🇧🇳🇱 意波英荷"
+    },
+    {
+      "key": "proj2",
+      "file": "proj2.json",
+      "shortName": "🇳🇿 新西兰"
+    },
+    {
+      "key": "proj3",
+      "file": "proj3.json",
+      "shortName": "🇨🇱 智利"
+    },
+    {
+      "key": "proj4",
+      "file": "proj4.json",
+      "shortName": "🇮🇱 以色列"
+    }
+  ]
+}

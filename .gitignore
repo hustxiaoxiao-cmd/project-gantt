@@ -1,0 +1,8 @@
+.DS_Store
+data/*.xlsx
+data/nz.json
+data/ybyh.json
+data/cl.json
+data/il.json
+__pycache__/
+*.pyc
